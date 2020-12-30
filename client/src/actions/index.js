@@ -1,7 +1,6 @@
 
 
 export const handleInputChange = e => {
-    console.log("Working"); 
 
     return {
         type: "HANDLE_INPUT_CHANGE", 

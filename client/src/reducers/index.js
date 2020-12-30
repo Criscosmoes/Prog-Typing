@@ -18,10 +18,6 @@ export default (state = initialState, action) => {
                     [action.payload.name]: action.payload.input
                 }
             }
-        case "ON_REGISTER_SUBMIT": 
-            return {
-                ...state, 
-            }
         default: 
             return state; 
     }

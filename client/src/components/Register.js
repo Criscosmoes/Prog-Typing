@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import Picture from "../Images/8751.jpg";
 import TypeWriterEffect from 'react-typewriter-effect';
-
+import axios from 'axios'; 
 //icons
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
@@ -200,6 +200,36 @@ const StyledRegister = styled.div`
 `;
 
 const Register = ({username, email, password, handleInputChange}) => {
+
+  const onFormSubmit = async e => {
+
+    try {
+
+      e.preventDefault(); 
+
+      const newUser = { username, email, password }; 
+
+      /* const response = await axios.post("http://localhost:5000/api/register", {
+        "username": username, 
+        "email": email, 
+        "password": password, 
+      }) */
+
+      const response = await axios.post("http://prog-typing.herokuapp.com/api/register", newUser); 
+
+      console.log(response); 
+
+
+    }catch(e){
+      console.log(e.message); 
+    }
+
+
+  }
+
+
+
+
   return (
     <StyledRegister>
       <div className="info-container">
@@ -234,18 +264,18 @@ const Register = ({username, email, password, handleInputChange}) => {
             <hr></hr>
           </div>
 
-          <form>
+          <form onSubmit={onFormSubmit}>
             <label>
               <h3>Username:</h3>
-              <input type="text" name="username" onChange={handleInputChange}  />
+              <input type="text" name="username" value={username} onChange={handleInputChange}  />
             </label>
             <label>
               <h3>Email:</h3>
-              <input type="text" name="email" onChange={handleInputChange} />
+              <input type="text" name="email"value={email} onChange={handleInputChange} />
             </label>
             <label>
               <h3>Password:</h3>
-              <input type="text" name="password" onChange={handleInputChange} />
+              <input type="text" name="password" value={password} onChange={handleInputChange} />
             </label>
             <button className="submit" type="submit">
               Register
