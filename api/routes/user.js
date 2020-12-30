@@ -13,6 +13,12 @@ const { checkIfUserExists } = require("../middlewares/users/CheckIfUserExists");
 const { accessToDetails } = require("../middlewares/users/accessToDetails"); 
 const { isAuthorized } = require("../middlewares/users/isAuthorized");
 
+
+
+router.get("/test", (req, res) => {
+  res.send("Hello World"); 
+})
+
 // create/register a user
 router.post("/register", [checkPayload, checkIfTaken], async (req, res) => {
   try {
