@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 
 
-dotenv.config(); //test
+dotenv.config();
 
 
 
