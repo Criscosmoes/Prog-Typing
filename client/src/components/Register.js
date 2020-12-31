@@ -209,7 +209,7 @@ const Register = ({username, email, password, handleInputChange}) => {
 
       const newUser = { username, email, password }; 
 
-      const response = await axios.post("http://localhost:5000/api/register", newUser); 
+      const response = await axios.post("http://node-api3-proj.herokuapp.com/", newUser); 
 
       console.log(response); 
 

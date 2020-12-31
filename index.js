@@ -2,7 +2,11 @@ const server = require("./api/server");
 const dotenv = require("dotenv"); 
 const mongoose = require("mongoose");
 
+const cors = require("cors"); 
+
 dotenv.config(); 
+
+server.use(cors()); 
 
 
 //Connect to DB
