@@ -7,6 +7,11 @@ const cors = require("cors");
 dotenv.config(); 
 
 server.use(cors()); 
+server.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*"); 
+    next(); 
+})
+
 
 
 //Connect to DB

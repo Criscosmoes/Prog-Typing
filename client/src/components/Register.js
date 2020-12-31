@@ -209,7 +209,7 @@ const Register = ({username, email, password, handleInputChange}) => {
 
       const newUser = { username, email, password }; 
 
-      const response = await axios.post("http://node-api3-proj.herokuapp.com/", newUser); 
+      const response = await axios.post("https://cors-anywhere.herokuapp.com/https://prog-typing.herokuapp.com/api/register", newUser); 
 
       console.log(response); 
 
