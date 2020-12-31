@@ -150,6 +150,8 @@ input {
     width: 40%;
 }
 
+
+
 hr {
     width: 40%;
     background: black; 

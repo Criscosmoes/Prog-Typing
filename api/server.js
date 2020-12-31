@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors"); 
 const helmet = require("helmet"); 
 
-const server = express(); 
+
 
 // gloabal middlwares
 const { isAuthorized } = require("./middlewares/users/isAuthorized"); 
@@ -11,9 +11,16 @@ const { isAuthorized } = require("./middlewares/users/isAuthorized");
 const UserRouter = require("./routes/user");
 const ScoresRouter = require("./routes/scores") 
 
-server.use(helmet()); 
-server.use(cors()); 
+const server = express(); 
+
+server.use(cors());
+server.use(helmet());  
 server.use(express.json()); 
+server.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*"); 
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept"); 
+    next(); 
+})
 
 
 server.use("/api", UserRouter)
