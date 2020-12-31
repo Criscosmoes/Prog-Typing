@@ -1,7 +1,12 @@
 const server = require("./api/server"); 
 const dotenv = require("dotenv"); 
 const mongoose = require("mongoose");
+const cors = require("cors"); 
 
+
+const app = express(); 
+
+app.use(cors()); 
 
 dotenv.config(); 
 
