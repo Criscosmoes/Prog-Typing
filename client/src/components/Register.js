@@ -209,7 +209,11 @@ const Register = ({username, email, password, handleInputChange}) => {
 
       const newUser = { username, email, password }; 
 
-      const response = await axios.post("http://prog-typing.herokuapp.com/api/register", newUser); 
+      const response = await axios.post("http://localhost:5000/api/register", {
+        username: "Cristiasdf", 
+        email: "dfaf@yahoo.com", 
+        password: "dasfdsaf"
+      }); 
 
       console.log(response); 
 
