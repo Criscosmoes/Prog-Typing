@@ -12,6 +12,19 @@ server.use((req, res, next) => {
     next(); 
 })
 
+server.get('/api/test', (req, res) => {
+    request(
+      { url: 'http://prog-typing.herokuapp.com/api/register' },
+      (error, response, body) => {
+        if (error || response.statusCode !== 200) {
+          return res.status(500).json({ type: 'error', message: err.message });
+        }
+  
+        res.json(JSON.parse(body));
+      }
+    )
+  });
+
 
 
 //Connect to DB
