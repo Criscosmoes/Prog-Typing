@@ -18,6 +18,15 @@ export default (state = initialState, action) => {
                     [action.payload.name]: action.payload.input
                 }
             }
+        case "RESET_INPUT": 
+            return {
+                ...state, 
+                input: {
+                    username: '', 
+                    email: '', 
+                    password: '', 
+                }
+            }
         default: 
             return state; 
     }

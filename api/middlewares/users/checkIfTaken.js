@@ -11,7 +11,7 @@ const checkIfTaken = async (req, res, next) => {
 
         if(taken){
             console.log(taken); 
-            return res.json("Email already taken")
+            return res.status(400).json("Email already taken")
         }
         else {
             next(); 

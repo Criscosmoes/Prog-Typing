@@ -10,3 +10,10 @@ export const handleInputChange = e => {
         }
     }
 }
+
+export const resetInputFields = () => {
+
+    return {
+        type: "RESET_INPUT", 
+    }
+}

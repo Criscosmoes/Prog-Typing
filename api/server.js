@@ -3,7 +3,6 @@ const helmet = require("helmet");
 const cors = require("cors"); 
 
 
-
 // gloabal middlwares
 const { isAuthorized } = require("./middlewares/users/isAuthorized"); 
 
