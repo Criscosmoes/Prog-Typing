@@ -1,0 +1,18 @@
+import * as yup from "yup";
+
+export default yup.object().shape({
+  email: yup
+    .string()
+    .email()
+    .required()
+    .min(6, "Email must be atleast 6 characters")
+    .trim("cannot include leading or trailing spaces")
+    .matches(/^\S*$/, "cannot include leading or trailing spaces"),
+
+  password: yup
+    .string()
+    .required()
+    .min(6, "Password must be atleast 6 characters")
+    .trim("cannot include leading or trailing spaces")
+    .matches(/^\S*$/, "cannot include leading or trailing spaces"),
+});

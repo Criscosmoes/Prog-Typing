@@ -1,5 +1,5 @@
 import React from 'react'
-import { Switch, Route } from 'react-router-dom'; 
+import { Switch } from 'react-router-dom'; 
 import "../App.css"; 
 
 
@@ -7,18 +7,18 @@ import "../App.css";
 import Register from './Register';
 import Login from './Login';
 import GlobalStyle from './createGlobalStyle';
+import Dashboard from './Dashboard'; 
+import PrivateRoute from './PrivateRoute';
+import PublicRoute from './PublicRoute';
 
 const App = () => {
     return (
         <div>
             <GlobalStyle />
            <Switch>
-               <Route path="/register">
-                   <Register />
-               </Route>
-               <Route path="/login">
-                   <Login />
-               </Route>
+               <PublicRoute path="/login" component={Login} />
+               <PublicRoute path="/register" component={Register} />
+               <PrivateRoute path="/dashboard" component={Dashboard} />
            </Switch>
         </div>
     )

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -6,12 +6,18 @@ import Picture from "../Images/2842680.jpg";
 
 //
 import { connect } from "react-redux";
-import { handleInputChange, resetInputFields } from "../actions/index";
+import { handleInputChange, resetInputFields, handleErrorMessages, setCurrentUser, saveErrorMessages, checkButtonDisabled, resetErrorMessages } from "../actions/index";
 
 //icons
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { FaFacebook } from "react-icons/fa"; 
+
+import { useHistory } from "react-router-dom"; 
+
+//schema import 
+import UserSchema from '../validation/loginSchema'; 
+import * as yup from "yup";
 
 const StyledLogin = styled.div`
   @import url("https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap");
@@ -67,7 +73,7 @@ const StyledLogin = styled.div`
   }
 
   .login-container > * {
-    margin: 6.9%;
+    margin: 5%;
   }
 
   .form-container {
@@ -143,7 +149,7 @@ const StyledLogin = styled.div`
   }
 
   .submit {
-    background: #1d458a;
+    background: gray;
     color: white;
     width: 30%;
     font-size: 2rem;
@@ -152,6 +158,10 @@ const StyledLogin = styled.div`
     outline: none;
     box-shadow: none;
     padding: 1%;
+  }
+
+  .false {
+    background: blue; 
   }
 
   .submit:hover {
@@ -244,27 +254,86 @@ const StyledLogin = styled.div`
   .signup {
     width: 100%
   }
+  
+  .error-messages {
+    height: 2rem; 
+    color: red; 
+  }
 `;
 
-const Login = ({ email, password, handleInputChange, resetInputFields }) => {
+const Login = ({ email, password, handleInputChange, resetInputFields, handleErrorMessages, errorMessage, setCurrentUser, saveErrorMessages, buttonDisabled, emailErrors,  passwordErrors, checkButtonDisabled, resetErrorMessages }) => {
+
+  let history = useHistory(); 
+
+
   const onFormSubmit = async (e) => {
     e.preventDefault();
 
-    const user = { email, password };
+    try {
+      const user = { email, password }; 
 
-    const response = await axios.post("http://localhost:5000/api/login", user);
+      const response = await axios.post("http://localhost:5000/api/login", user); 
 
-    if (response.status === 200) {
-      localStorage.setItem("token", response.data.token);
+      // set user 
+      const message = response.data.message; 
+      const name = message.split(", ")[1].toString(); 
+
+      //set token to local storage
+      localStorage.setItem("token", response.data.token); 
+
+      //set the current user
+      setCurrentUser(response.data.id, name); 
+
+      //reset input fields
+      resetInputFields(); 
+
+      //if correct credentials, push the user to a different screen
+      history.push("/dashboard"); 
+      
+
+    }catch(e){
+      // if user has the wrong credentials, show them on screen. 
+      handleErrorMessages("Invalid credentials. Please try again!"); 
+      
+      console.log(e.response.data)
     }
-    else if(response.status === 400) {
-        console.log("wrong credentials")
-    }
+   
+  };
 
-    console.log(response);
+  
+  const validateChange = e => {
+    e.persist(); 
+
+    yup.reach(UserSchema, e.target.name).validate(e.target.value)
+    .then((valid) => {
+        saveErrorMessages(e.target.name, ""); 
+    })
+    .catch((error) => {
+        saveErrorMessages(e.target.name, error.message); 
+    })
+
+  }
+
+  const onInputChange = e => {
+
+    // sets input
+    handleInputChange(e.target.name, e.target.value); 
+
+    //checks for input errors
+    validateChange(e); 
+  }
+
+  const resetFieldsAndErrors = () => {
 
     resetInputFields(); 
-  };
+
+    resetErrorMessages(); 
+  }
+
+  useEffect(() => {
+
+    UserSchema.isValid({email, password}).then((valid) => checkButtonDisabled(!valid))
+  }, [email, password])
 
   return (
     <StyledLogin>
@@ -282,8 +351,9 @@ const Login = ({ email, password, handleInputChange, resetInputFields }) => {
                   type="text"
                   name="email"
                   value={email}
-                  onChange={handleInputChange}
+                  onChange={onInputChange}
                 />
+                <p className="error-messages">{emailErrors.length ? emailErrors : ""}</p>
               </label>
               <label>
                 <h3>Password:</h3>
@@ -291,12 +361,14 @@ const Login = ({ email, password, handleInputChange, resetInputFields }) => {
                   type="text"
                   name="password"
                   value={password}
-                  onChange={handleInputChange}
+                  onChange={onInputChange}
                 />
+                <p className="error-messages">{passwordErrors.length ? passwordErrors : ""}</p>
               </label>
-              <button type="submit" className="submit">
+              <button type="submit" className={`submit ${buttonDisabled ? "" : "false"}`}>
                 Login
               </button>
+              <p className="error-messages">{!errorMessage ? "" : errorMessage}</p>
             </form>
           </div>
           <div className="oauth-container">
@@ -308,7 +380,7 @@ const Login = ({ email, password, handleInputChange, resetInputFields }) => {
             </div>
           </div>
           <Link className="link" to="/register">
-            Don't have an account? Sign up. 
+            <h4 onClick={resetFieldsAndErrors}>Don't have an account? Sign up. </h4>
           </Link>
         </div>
       </div>
@@ -320,7 +392,12 @@ const mapStateToProps = (state) => {
   return {
     email: state.input.email,
     password: state.input.password,
+    errorMessage: state.errorMessage, 
+    usernameErrors: state.errorMessages.username, 
+    emailErrors: state.errorMessages.email, 
+    passwordErrors: state.errorMessages.password, 
+    buttonDisabled: state.buttonDisabled,
   };
 };
 
-export default connect(mapStateToProps, { handleInputChange, resetInputFields })(Login);
+export default connect(mapStateToProps, { handleInputChange, resetInputFields, handleErrorMessages, setCurrentUser, saveErrorMessages, checkButtonDisabled, resetErrorMessages })(Login);

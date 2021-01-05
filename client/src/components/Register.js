@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import Picture from "../Images/8751.jpg";
 import TypeWriterEffect from "react-typewriter-effect";
 import axios from "axios";
 import { Link } from "react-router-dom"; 
+import validator from "validator"; 
+
+//schema import 
+import UserSchema from '../validation/signUpSchema'; 
+import * as yup from "yup";
+
 
 //icons
 import { FcGoogle } from "react-icons/fc";
@@ -12,7 +18,7 @@ import { FaFacebook } from 'react-icons/fa';
 
 //actions
 import { connect } from "react-redux";
-import { handleInputChange, resetInputFields } from "../actions/index";
+import { resetInputFields, saveErrorMessages, handleInputChange, checkButtonDisabled, resetErrorMessages, handleErrorMessages } from "../actions/index";
 
 const StyledRegister = styled.div`
   @import url("https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap");
@@ -77,7 +83,7 @@ const StyledRegister = styled.div`
   }
 
   .register-container > * {
-    margin: 2% 0%;
+    margin: 3.1% 0%;
   }
 
   h1 {
@@ -138,7 +144,7 @@ const StyledRegister = styled.div`
   }
 
   .submit {
-    background: #1d458a; 
+    background: gray; 
     width: 40%; 
     border-radius: 20px; 
     color: white;
@@ -146,6 +152,10 @@ const StyledRegister = styled.div`
     padding: 1%; 
     font-size: 2rem;
 
+  }
+
+  .false {
+    background: blue; 
   }
 
   .submit:hover {
@@ -159,7 +169,7 @@ const StyledRegister = styled.div`
     align-items: flex-start; 
     flex-direction: column; 
     flex-flow: column wrap; 
-    width: 60%;
+    width: 70%;
   }
 
   label > * {
@@ -217,9 +227,28 @@ const StyledRegister = styled.div`
   .link {
     font-size: 2rem; 
   }
+
+  .error-messages {
+    color: red; 
+    font-size: 1.75rem; 
+    height: 2rem; 
+  }
+
+  .username {
+    border: 2px solid #00FF00
+  }
+
+  .email {
+    border: 2px solid #00FF00
+  }
+
+  .password {
+    border: 2px solid #00FF00
+  }
+  
 `;
 
-const Register = ({ username, email, password, handleInputChange, resetInputFields }) => {
+const Register = ({ username, email, password, handleInputChange, resetInputFields, saveErrorMessages, usernameErrors, emailErrors, passwordErrors, buttonDisabled, checkButtonDisabled, resetErrorMessages, handleErrorMessages}) => {
   const onFormSubmit = async (e) => {
     try {
       e.preventDefault();
@@ -231,13 +260,93 @@ const Register = ({ username, email, password, handleInputChange, resetInputFiel
         newUser
       );
   
-      console.log(response);
+      console.log(response.preview);
 
       resetInputFields(); 
     } catch (e) {
-      console.log(e.message);
+      console.log(e.response.data);
     }
   };
+
+
+  const onInputChange = e => {
+
+    // saves input to state
+    handleInputChange(e.target.name, e.target.value); 
+
+    // validate user input 
+    validateChange(e); 
+
+    //checks if any error messagess are present
+    if(usernameErrors || emailErrors || passwordErrors){
+      checkButtonDisabled(true); 
+    }
+
+  }
+
+  // helper functions
+  const resetFieldsAndErrors = () => {
+
+    resetInputFields(); 
+
+    resetErrorMessages(); 
+  }
+
+  
+  const validateChange = e => {
+    e.persist(); 
+
+    yup.reach(UserSchema, e.target.name).validate(e.target.value)
+    .then((valid) => {
+        saveErrorMessages(e.target.name, ""); 
+    })
+    .catch((error) => {
+        saveErrorMessages(e.target.name, error.message); 
+    })
+
+  }
+
+
+  // on render
+  useEffect(() => {
+
+    UserSchema.isValid({username, email, password}).then((valid) => checkButtonDisabled(!valid))
+
+    // checks if input is valid email, then checks db if email is already taken or not
+    const timeoutId = setTimeout(async () => {
+
+      //checks if user is unique
+      if(username.length > 3){
+
+        try {
+          const response = await axios.post("http://localhost:5000/api/username", {username});
+        }catch(e){
+          saveErrorMessages("username", e.response.data); 
+        }
+      }
+
+      //checks email
+      if(validator.isEmail(email) && email.length > 5){
+  
+
+        try {
+
+          const response = await axios.post("http://localhost:5000/api/email",{email});
+           
+        }
+        catch(e){
+          saveErrorMessages("email", e.response.data)
+        }
+        
+      }
+
+    }, 1000)
+
+
+    return () => {
+      clearTimeout(timeoutId); 
+    }
+  }, [username, email, password])
 
   return (
     <StyledRegister>
@@ -265,31 +374,37 @@ const Register = ({ username, email, password, handleInputChange, resetInputFiel
               <label>
                 <h3>Username:</h3>
                 <input
+                  className={`${!usernameErrors && username.length > 3 ? "username" : ""}`}
                   type="text"
                   name="username"
                   value={username}
-                  onChange={handleInputChange}
+                  onChange={onInputChange}
                 />
+                <p className="error-messages">{usernameErrors.length ? usernameErrors : ""}</p>
               </label>
               <label>
                 <h3>Email:</h3>
                 <input
+                  className={`${!emailErrors && email.length > 5 ? "email" : ""}`}
                   type="text"
                   name="email"
                   value={email}
-                  onChange={handleInputChange}
+                  onChange={onInputChange}
                 />
+                <p className="error-messages">{emailErrors.length ? emailErrors : ""}</p>
               </label>
               <label>
                 <h3>Password:</h3>
                 <input
+                  className={`${!passwordErrors && password.length > 5 ? "password" : ""}`}
                   type="text"
                   name="password"
                   value={password}
-                  onChange={handleInputChange}
+                  onChange={onInputChange}
                 />
+                <p className="error-messages">{passwordErrors.length ? passwordErrors : ""}</p>
               </label>
-              <button className="submit" type="submit">
+              <button className={`submit ${buttonDisabled ? "" : "false"}`} type="submit" disabled={buttonDisabled}>
                 Register
               </button>
             </form>
@@ -301,7 +416,7 @@ const Register = ({ username, email, password, handleInputChange, resetInputFiel
               <FaGithub className="icons"  />
             </div>
           <Link className="link" to="/login">
-            Already have an account? Login.
+            <h4 onClick={resetFieldsAndErrors}>Already have an account? Login.</h4>
           </Link>
         </div>
       </div>
@@ -314,7 +429,11 @@ const mapStateToProps = (state) => {
     username: state.input.username,
     email: state.input.email,
     password: state.input.password,
+    usernameErrors: state.errorMessages.username, 
+    emailErrors: state.errorMessages.email, 
+    passwordErrors: state.errorMessages.password, 
+    buttonDisabled: state.buttonDisabled, 
   };
 };
 
-export default connect(mapStateToProps, { handleInputChange, resetInputFields })(Register);
+export default connect(mapStateToProps, {handleInputChange, resetInputFields, saveErrorMessages, checkButtonDisabled, resetErrorMessages, handleErrorMessages })(Register);

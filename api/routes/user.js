@@ -41,6 +41,50 @@ router.post("/register", [checkPayload, checkIfTaken], async (req, res) => {
   }
 });
 
+// check if an email is taken in real time
+router.post("/email", async (req, res) => {
+
+  try {
+
+    const { email } = req.body; 
+
+    const [taken] = await User.find({email}); 
+
+    if(taken){
+      return res.status(400).json("Email already taken"); 
+    }
+    else {
+      return res.status(200).json("Valid Email!")
+    }
+
+
+  }catch(e){
+    res.status(500).send(e.message); 
+  }
+
+
+})
+
+
+router.post("/username", async (req, res) => {
+
+  try {
+    const { username } = req.body; 
+
+    const [taken] = await User.find({username}); 
+
+    if(taken){
+      return res.status(400).json("Username already taken"); 
+    }
+    else {
+      return res.status(200).json("Valid Username!"); 
+    }
+
+  }catch(e){
+    res.status(500).send(e.message); 
+  }
+})
+
 // login the user
 router.post("/login", [checkPayload, checkIfUserExists], async (req, res) => {
   try {
@@ -49,13 +93,14 @@ router.post("/login", [checkPayload, checkIfUserExists], async (req, res) => {
     if (bcrypt.compareSync(req.body.password, user.password)) {
       const token = makeToken(user);
 
-
       return res
         .status(200)
-        .json({ message: `Welcome, ${user.username}`, token: token });
-    } else {
+        .json({ message: `Welcome, ${user.username}`, token: token, id: user.id })
+    } 
+       else {
       res.status(400).json("Invalid credentials");
-    }
+
+      }
   } catch (e) {
     res.status(500).send(e.message);
   }

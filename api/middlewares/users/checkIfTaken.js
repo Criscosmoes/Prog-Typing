@@ -5,18 +5,21 @@ const checkIfTaken = async (req, res, next) => {
     try {
         
 
-        const { email } = req.body; 
+        const { email, username } = req.body; 
 
-        const [taken] = await User.find({ email })
+        /* const [taken] = await User.find({ email })
+        const [userTaken] = await User.find({ username }); 
 
-        if(taken){
+        if(userTaken){
             console.log(taken); 
-            return res.status(400).json("Email already taken")
+            return res.status(400).json("Username already taken")
         }
-        else {
-            next(); 
-        }
+      
+        if(taken){
+            return res.status(400).json("Email already taken"); 
+        } */
 
+        next(); 
 
     }catch(e){
         res.status(500).send(e.message); 
