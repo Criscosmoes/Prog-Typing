@@ -71,7 +71,7 @@ router.post("/username", async (req, res) => {
   try {
     const { username } = req.body; 
 
-    const [taken] = await User.find({username}); 
+    const [taken] = await User.findOne({username}); 
 
     if(taken){
       return res.status(400).json("Username already taken"); 
