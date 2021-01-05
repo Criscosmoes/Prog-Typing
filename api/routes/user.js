@@ -14,6 +14,19 @@ const { accessToDetails } = require("../middlewares/users/accessToDetails");
 const { isAuthorized } = require("../middlewares/users/isAuthorized");
 
 
+router.get("/users", async (req, res) => {
+
+  try {
+
+
+    const users = await User.find({});
+
+    res.status(200).send(users); 
+
+  }catch(e){
+    res.status(500).send(e.message); 
+  }
+})
 
 
 // create/register a user
@@ -71,7 +84,7 @@ router.post("/username", async (req, res) => {
   try {
     const { username } = req.body; 
 
-    const [taken] = await User.findOne({username}); 
+    const [taken] = await User.find({username}); 
 
     if(taken){
       return res.status(400).json("Username already taken"); 
