@@ -256,7 +256,7 @@ const Register = ({ username, email, password, handleInputChange, resetInputFiel
       const newUser = { username, email, password };
 
       const response = await axios.post(
-        "http://prog-typingg.herokuapp.com/api/register",
+        "https://prog-typingg.herokuapp.com/api/register",
         newUser
       );
   
