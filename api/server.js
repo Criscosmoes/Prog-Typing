@@ -1,5 +1,6 @@
 const express = require("express"); 
 const helmet = require("helmet"); 
+const cors = require("cors"); 
 
 
 // gloabal middlwares
@@ -25,6 +26,7 @@ server.use((req, res, next) => {
    // Pass to next layer of middleware
    next();
 })
+server.use(cors()); 
 server.use(helmet());  
 server.use(express.json()); 
 
