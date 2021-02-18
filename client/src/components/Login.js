@@ -265,14 +265,14 @@ const Login = ({ email, password, handleInputChange, resetInputFields, handleErr
 
   let history = useHistory(); 
 
-
+  // on login button click
   const onFormSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const user = { email, password }; 
 
-      const response = await axios.post("http://localhost:5000/api/login", user); 
+      const response = await axios.post("https://prog-typingg.herokuapp.com/api/login", user); 
 
       // set user 
       const message = response.data.message; 
@@ -293,7 +293,9 @@ const Login = ({ email, password, handleInputChange, resetInputFields, handleErr
 
     }catch(e){
       // if user has the wrong credentials, show them on screen. 
-      handleErrorMessages("Invalid credentials. Please try again!"); 
+      handleErrorMessages("Invalid credentials. Please try again!");
+
+      resetInputFields(); 
       
       console.log(e.response.data)
     }

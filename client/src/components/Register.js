@@ -5,6 +5,7 @@ import TypeWriterEffect from "react-typewriter-effect";
 import axios from "axios";
 import { Link } from "react-router-dom"; 
 import validator from "validator"; 
+import { useHistory } from "react-router-dom";
 
 //schema import 
 import UserSchema from '../validation/signUpSchema'; 
@@ -22,6 +23,7 @@ import { resetInputFields, saveErrorMessages, handleInputChange, checkButtonDisa
 
 const StyledRegister = styled.div`
   @import url("https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap");
+import Login from './Login';
 
   & {
     display: flex;
@@ -249,6 +251,9 @@ const StyledRegister = styled.div`
 `;
 
 const Register = ({ username, email, password, handleInputChange, resetInputFields, saveErrorMessages, usernameErrors, emailErrors, passwordErrors, buttonDisabled, checkButtonDisabled, resetErrorMessages, handleErrorMessages}) => {
+
+  let history = useHistory(); 
+
   const onFormSubmit = async (e) => {
     try {
       e.preventDefault();
@@ -259,7 +264,11 @@ const Register = ({ username, email, password, handleInputChange, resetInputFiel
         "https://prog-typingg.herokuapp.com/api/register",
         newUser
       );
+
+      history.push("/login")
   
+      resetErrorMessages(); 
+      
       console.log(response.preview);
 
       resetInputFields(); 
@@ -319,9 +328,10 @@ const Register = ({ username, email, password, handleInputChange, resetInputFiel
       if(username.length > 3){
 
         try {
-          const response = await axios.post("http://localhost:5000/api/username", {username});
+          const response = await axios.post("https://prog-typingg.herokuapp.com/api/username", {username});
         }catch(e){
-          saveErrorMessages("username", e.response.data); 
+          saveErrorMessages("username", e.response.data);
+          checkButtonDisabled(true); 
         }
       }
 
@@ -330,12 +340,14 @@ const Register = ({ username, email, password, handleInputChange, resetInputFiel
   
 
         try {
-
-          const response = await axios.post("http://localhost:5000/api/email",{email});
-           
+          
+          const response = await axios.post("https://prog-typingg.herokuapp.com/api/email",{email});
+          
         }
         catch(e){
           saveErrorMessages("email", e.response.data)
+          checkButtonDisabled(true); 
+
         }
         
       }
