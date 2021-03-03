@@ -12,7 +12,8 @@ router.post("/texts", async (req, res) => {
         if(!language || !text) return res.status(400).json("Please provide a language and a text"); 
 
         const newText = new Text({
-            language, text
+            language: language, 
+            text: text, 
         })
 
         await newText.save(); 
