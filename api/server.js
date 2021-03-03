@@ -9,6 +9,7 @@ const { isAuthorized } = require("./middlewares/users/isAuthorized");
 //import user routes
 const UserRouter = require("./routes/user");
 const ScoresRouter = require("./routes/scores") 
+const TextsRouter = require("./routes/texts"); 
 
 const server = express(); 
 
@@ -34,6 +35,7 @@ server.use(express.json());
 
 server.use("/api", UserRouter)
 server.use("/api", isAuthorized, ScoresRouter); 
+server.use("/api", TextsRouter); 
 
 
 module.exports = server; 
