@@ -33,9 +33,9 @@ server.use(express.json());
 
 
 
+server.use("/api", TextsRouter)
 server.use("/api", UserRouter)
 server.use("/api", isAuthorized, ScoresRouter); 
-server.use("/api", TextsRouter); 
 
 
-module.exports = server; 
+module.exports = server;     

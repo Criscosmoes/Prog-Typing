@@ -1,5 +1,6 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import styled from 'styled-components'; 
+import axios from 'axios'; 
 
 import { VscDebugStart } from 'react-icons/vsc';
 import { IoIosPeople } from 'react-icons/io';  
@@ -107,13 +108,85 @@ input {
     display: flex; 
     justify-content: center; 
     align-items: center; 
+    flex-direction: column; 
     height: 90vh; 
-    width: 20%; 
+    width: 25%; 
 }
 
 .dropdown-box {
-    height: 65vh; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 30vh;
+    width: 100% 
 }
+
+.typing-results {
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 70vh; 
+    width: 100%
+}
+
+.results {
+
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    flex-direction: column; 
+    height: 50vh; 
+    width: 90%;
+}
+
+.stats {
+    width: 50%; 
+}
+
+.stats > * {
+    margin: 4%; 
+}
+
+h2 {
+    font-size: 3.2rem; 
+}
+
+h3 {
+    font-size: 2.2rem; 
+}
+
+.restart-button {
+    width: 40%; 
+    padding: 1%; 
+    font-size: 2rem; 
+}
+
+.restart-button:hover {
+    background: black; 
+    color: white; 
+}
+
+.restart-timer {
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    width: 30%
+}
+
+.timer {
+
+    display: flex; 
+    justify-content: center;
+    align-items: center; 
+    height: 100%; 
+    width: 50%; 
+    background: white; 
+}
+
+.seconds {
+    font-size: 3.5rem; 
+}
+
 
 // icons 
 
@@ -172,16 +245,60 @@ button:hover {
 
 `
 
+
+
+
 const Dashboard = () => {
 
 
 
-
     const [userInput, setUserInput] = useState(""); 
-    const [text, setText] = useState("Lorem")
+    const [pointer, setPointer] = useState(0);
+    const [data, setData] = useState([]); 
+    const [text, setText] = useState("")
     const [paragraph, setParagraph] = useState(text.split(""));
-    const [pointer, setPointer] = useState(0); 
+    const [wrongWords, setWrongWords] = useState(0); 
+    const [correctWords, setCorrectWords] = useState(0); 
+    const [wpm, setWpm] = useState(0); 
+    const [seconds, setSeconds] = useState(60); 
+    const [disabled, setDisabled] = useState(false);
+    const [intervalTimer, setIntervalTimer] = useState("false"); 
     
+
+    useEffect(async () => {
+
+        const response = await axios.get("http://localhost:5000/api/texts"); 
+
+
+        const filteredArr = response.data.filter(cur => cur.language === "Python")
+
+        const arr = filteredArr.map(cur => {
+            return cur.text; 
+        })
+
+        console.log(arr); 
+
+        /* Randomize array in-place using Durstenfeld shuffle algorithm */
+        function shuffleArray(array) {
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        }
+
+        shuffleArray(arr); 
+        setData(arr); 
+
+        const lastItem = arr[arr.length - 1]
+        setText(lastItem); 
+        setParagraph(lastItem.split("")); 
+
+
+
+
+    }, [])
     
  
     
@@ -209,7 +326,6 @@ const Dashboard = () => {
     
 
         
-
         if (lastChar == paragraph[pointer]){
 
 
@@ -218,9 +334,12 @@ const Dashboard = () => {
             currentSpan.removeAttribute("id", "next"); 
 
             // checks if current word is incorrect
-            if (currentSpan.classList.value == "wrong right" || currentSpan.classList.value == "right wrong"){
+            if (currentSpan.classList.value == "wrong right" || currentSpan.classList.value == "right wrong" || currentSpan.classList.value == "wrong"){
                 currentSpan.classList.remove("right");
 
+            }
+            else {
+                setCorrectWords(correctWords + 1); 
             }
 
         
@@ -235,6 +354,7 @@ const Dashboard = () => {
     
                 nextSpan.removeAttribute("id", "next");
             }
+            setWrongWords(wrongWords + 1)
             return false; 
 
         }
@@ -250,6 +370,8 @@ const Dashboard = () => {
 
             const children = e.target.previousSibling.childNodes; 
 
+            console.log(children); 
+
             const arr = Array.from(children); 
 
             arr.forEach(cur => {
@@ -257,9 +379,10 @@ const Dashboard = () => {
                 cur.classList.remove("wrong");
             })
 
-            const newText = "Cristian"
+            const randomNum = Math.floor((Math.random() * data.length - 1) + 1); 
+            const newText = data[randomNum]; 
 
-            setText("Cristian"); 
+            setText(newText); 
             setParagraph(newText.split(""))
             setPointer(0);
             setUserInput("");
@@ -271,12 +394,62 @@ const Dashboard = () => {
         }
     }
 
-    const onRestartClick = (e) => {
 
-        setPointer(0); 
+    const onRestartClick = () => {
+
+        const children = document.querySelector(".text-area").childNodes; 
+
+        const arr = Array.from(children); 
+
+        arr.forEach(cur => {
+            cur.classList.remove("right");
+            cur.classList.remove("wrong");
+            cur.removeAttribute("id", "next")
+        })
+
+        const randomNum = Math.floor((Math.random() * data.length - 1) + 1); 
+        const newText = data[randomNum]; 
+
+        setIntervalTimer("false"); 
+        setCorrectWords(0); 
+        setWrongWords(0); 
+        setWpm(0); 
+        setDisabled(false); 
+        setSeconds(60); 
+        setText(newText); 
+        setParagraph(newText.split(""))
+        setPointer(0);
         setUserInput("");
     }
 
+
+    function timer(){
+        var sec = 59;
+        var myTimer = setInterval(function(){
+
+            
+            setSeconds(sec); 
+            sec--;
+            
+            console.log(intervalTimer); 
+
+            // when timer ends
+            if (sec < 0) { 
+                clearInterval(myTimer);
+            }
+
+        }, 1000);
+
+    }
+    const onInputClick = () => {
+
+
+        if(seconds >= 59){
+            timer();
+            
+        }
+        
+    }
 
 
     return (
@@ -303,15 +476,46 @@ const Dashboard = () => {
                                 {spanText}
                             </div>
         
-                            <input type="text" onChange={onInputChange} value={userInput}/>
+                            <input type="text" onClick={onInputClick} onChange={onInputChange} value={userInput} disabled={disabled}/>
 
-                            <button onClick={onRestartClick}><VscDebugRestart className="restart" /></button>
+                            
+                            <div className="restart-timer">
+                                <button onClick={onRestartClick}><VscDebugRestart className="restart" /></button>
+                                <div className="timer">
+                                    <div className="seconds">
+                                        {seconds}
+                                    </div>
+                                </div>
+                            </div>
                     </div>
                 </div>
 
                 <div className="dropdown">
                     <div className="dropdown-box">
-                        <h2>DROPDOWN</h2>
+                        
+                        <label for="language">Choose a language</label>
+
+                        <select name="languages">
+                            <option value="Python">Python</option>
+                            <option value="Javascript">Javascript</option>
+                            <option value="HTML">HTML</option>
+                            <option value="CSS">CSS</option>
+                        </select>
+
+                    </div>
+                    <div className="typing-results">
+                        <div className="results">
+                            <h2>Results</h2>
+
+                           <div className="stats">
+                                <h3>Chars correct: {!correctWords ? "" : correctWords} </h3>
+                                <h3>Chars incorrect: {!wrongWords ? "" : wrongWords} </h3>
+                                <h3>WPM: {correctWords / 5}</h3>
+                           </div>
+
+                            <button className="restart-button"> Restart </button>
+
+                        </div>
                     </div>
                 </div>
            </div>

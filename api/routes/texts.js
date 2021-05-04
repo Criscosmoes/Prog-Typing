@@ -28,4 +28,20 @@ router.post("/texts", async (req, res) => {
 
 })
 
+router.get("/texts", async (req, res) => {
+
+    try {
+
+        const texts = await Text.find({language: "Python"}); 
+
+        res.status(200).send(texts); 
+
+
+    }catch(e){
+        res.status(500).send(e.message); 
+    }
+
+
+})
+
 module.exports = router; 
